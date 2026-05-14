@@ -40,7 +40,7 @@ button:hover {
     margin-bottom: 10px;
 }
 h1 {
-    line-height: 0;
+    line-height: 0.5;
 }
 .inputs > * {
     width: 100%;
