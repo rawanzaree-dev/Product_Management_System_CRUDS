@@ -9,7 +9,8 @@ let title= document.getElementById("title"),
     category= document.getElementById("category"),
     submitBtn= document.getElementById("submit"),
     deleteAllBtn= document.getElementById("delete-all"),
-    arr= [], obj= {}, mood= "create", temp;
+    search= document.getElementById("search"),
+    arr= [], obj= {}, mood= "create", temp, searchMood= "title";
 
 // calculate total
 function getTotal() {
@@ -29,33 +30,35 @@ submitBtn.onclick= function() {
         arr= JSON.parse(localStorage.getItem("products"));
     }
     let obj= {
-        title: title.value,
+        title: title.value.toLowerCase(),
         price: price.value,
         taxes: taxes.value,
         ads: ads.value,
         discount: discount.value,
         total: total.innerHTML,
         count: count.value,
-        category: category.value,
+        category: category.value.toLowerCase(),
     };
 
-    if(mood === "create") {
-        if(count.value > 0) {
-            for(let i= 0; i < count.value; i++) {
+    if(title.value != "" && price.value > 0 && category.value != "" && count.value < 100) {
+        if(mood === "create") {
+            if(count.value > 0) {
+                for(let i= 0; i < count.value; i++) {
+                    arr.push(obj);
+                }
+            }else {
                 arr.push(obj);
             }
         }else {
-            arr.push(obj);
+            arr[temp]= obj;
+            mood= "create";
+            submitBtn.textContent= "Crerate";
+            count.style.display= "block";
         }
-    }else {
-        arr[temp]= obj;
-        mood= "create";
-        submitBtn.textContent= "Crerate";
-        count.style.display= "block";
+        clearData();
     }
     
     localStorage.setItem("products", JSON.stringify(arr));
-    clearData();
     getTotal();
     readData();
 }
@@ -138,4 +141,36 @@ function updateProduct(i) {
     temp= i;
 }
 
-
+// search for product
+function getSearchMood(id) {
+    if(id === "searchTitle") {
+        searchMood= "title";
+    }else {
+        searchMood= "category";
+    }
+    search.focus();
+    search.placeholder= `Search By ${searchMood.slice(0, 1).toUpperCase()}${searchMood.slice(1)}`;
+    search.value= "";
+}
+function searchData(value) {
+    let table= "";
+    arr.forEach((el, idx) => {
+        if(el[searchMood].includes(value.toLowerCase())) {
+            table+= `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${el.title}</td>
+                    <td>${el.price}</td>
+                    <td>${el.taxes}</td>
+                    <td>${el.ads}</td>
+                    <td>${el.discount}</td>
+                    <td>${el.total}</td>
+                    <td>${el.category}</td>
+                    <td><button onclick="updateProduct(${idx})">Update</button></td>
+                    <td><button onclick="deleteProduct(${idx})">Delete</button></td>
+                </tr>
+            `;
+        }
+    });
+    document.querySelector("tbody").innerHTML= table;
+}
